@@ -170,6 +170,12 @@ public class MainActivity extends AppCompatActivity {
         }*/
     }
 
+//    @Override
+//    public void onBackPressed() {
+//        super.onBackPressed();
+//
+//    }
+
     public void onClickCalled(Category item) {
         String name = item.getName();
         Intent intent = new Intent(this, DataDisplay.class);

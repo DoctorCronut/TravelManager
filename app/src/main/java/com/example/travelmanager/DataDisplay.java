@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.ActionBar;
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -15,6 +17,7 @@ import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -43,6 +46,7 @@ public class DataDisplay extends AppCompatActivity {
         onRestore();
         initView();
         initListener();
+
     }
 
     public boolean onOptionsItemSelected(MenuItem item){
@@ -84,32 +88,61 @@ public class DataDisplay extends AppCompatActivity {
                 String nameText = editName.getText().toString();
                 String expText = editExp.getText().toString();
                 if (nameText.length() > 0 && expText.length() > 0) {
-                    Log.d("D", "hi" + nameText + expText);
-                    dataList.add(new Data(nameText,
-                            Float.parseFloat(expText)));
+                    try {
+                        float exp = Float.parseFloat(expText);
+                        Log.d("D", "hi" + nameText + expText);
+                        dataList.add(new Data(nameText,
+                                exp));
+                        hideSoftKeyboard(DataDisplay.this, rvData);
+                        editName.getText().clear();
+                        editExp.getText().clear();
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(DataDisplay.this, "Invalid Entry for Expense",
+                                Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     Toast.makeText(DataDisplay.this, "Cannot leave fields empty",
                             Toast.LENGTH_SHORT).show();
                 }
+
             }
         });
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
         Gson gson = new Gson();
         String json = gson.toJson(dataList);
         Intent intent = new Intent();
         intent.putExtra("Return_cat", json);
         intent.putExtra("C_NAME", getIntent().getStringExtra("C_NAME"));
         setResult(2, intent);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+//        Gson gson = new Gson();
+//        String json = gson.toJson(dataList);
+//        Intent intent = new Intent();
+//        intent.putExtra("Return_cat", json);
+//        intent.putExtra("C_NAME", getIntent().getStringExtra("C_NAME"));
+//        setResult(2, intent);
         finish();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+//        Gson gson = new Gson();
+//        String json = gson.toJson(dataList);
+//        Intent intent = new Intent();
+//        intent.putExtra("Return_cat", json);
+//        intent.putExtra("C_NAME", getIntent().getStringExtra("C_NAME"));
+//        setResult(2, intent);
+        finish();
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        Log.wtf("?", "Does this work!");
         Gson gson = new Gson();
         String json = gson.toJson(dataList);
         Intent intent = new Intent();
@@ -119,12 +152,16 @@ public class DataDisplay extends AppCompatActivity {
         finish();
     }
 
-
-
     private void initView() {
         rvData = findViewById(R.id.rv_data);
         adapter = new RVDataAdapter(this, dataList, getIntent());
         rvData.setAdapter(adapter);
         rvData.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    public static void hideSoftKeyboard (Activity activity, View view)
+    {
+        InputMethodManager imm = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getApplicationWindowToken(), 0);
     }
 }
